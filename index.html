@@ -7,8 +7,9 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-    .progress { background: #eee; border-radius: 5px; overflow: hidden; }
+    .progress { background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
     .progress-bar { background: #4caf50; height: 20px; }
+    input { width: 80px; margin: 5px; }
   </style>
 </head>
 <body>
@@ -16,7 +17,7 @@
   <div id="dashboard"></div>
 
   <script>
-    // Example data (replace with fetch from CSV/JSON)
+    // Initial car data
     const cars = [
       { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39 },
       { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64 }
@@ -24,19 +25,39 @@
 
     const dashboard = document.getElementById("dashboard");
 
-    cars.forEach(car => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h2>${car.name}</h2>
-        <p>SOC: ${car.soc}%</p>
-        <div class="progress"><div class="progress-bar" style="width:${car.soc}%"></div></div>
-        <p>Current: ${car.current} A</p>
-        <p>Voltage: ${car.voltage} V</p>
-        <p>Battery Capacity: ${car.capacity} kWh</p>
-      `;
-      dashboard.appendChild(card);
-    });
+    function render() {
+      dashboard.innerHTML = "";
+      cars.forEach((car, idx) => {
+        const remainingCapacity = car.capacity * (1 - car.soc/100);
+        const chargingPower = (car.voltage * car.current) / 1000; // kW
+        const hoursRemaining = chargingPower > 0 ? (remainingCapacity / chargingPower) : 0;
+        const finishTime = new Date(Date.now() + hoursRemaining*3600*1000);
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h2>${car.name}</h2>
+          <label>SOC (%): <input type="number" value="${car.soc}" 
+            onchange="updateCar(${idx}, 'soc', this.value)"></label><br>
+          <div class="progress"><div class="progress-bar" style="width:${car.soc}%"></div></div>
+          <label>Current (A): <input type="number" value="${car.current}" 
+            onchange="updateCar(${idx}, 'current', this.value)"></label><br>
+          <p>Voltage: ${car.voltage} V</p>
+          <p>Battery Capacity: ${car.capacity} kWh</p>
+          <p>Remaining Capacity: ${remainingCapacity.toFixed(2)} kWh</p>
+          <p>Charging Power: ${chargingPower.toFixed(2)} kW</p>
+          <p>Estimated Finish: ${finishTime.toLocaleTimeString()}</p>
+        `;
+        dashboard.appendChild(card);
+      });
+    }
+
+    function updateCar(idx, field, value) {
+      cars[idx][field] = parseFloat(value);
+      render();
+    }
+
+    render();
   </script>
 </body>
 </html>
