@@ -74,7 +74,12 @@
 
     // Initial render
     render();
+    if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker registered"));
+}
   </script>
 </body>
 </html>
+
 
