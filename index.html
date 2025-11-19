@@ -6,50 +6,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
-    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-    .progress { background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
-    .progress-bar { background: #4caf50; height: 20px; }
-    input { width: 80px; margin: 5px; }
+    .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; max-width: 400px; margin: auto; }
+    input { width: 120px; height: 35px; font-size: 18px; margin: 8px; padding: 5px; }
+    select { width: 200px; height: 40px; font-size: 18px; margin: 10px; }
+    .finish-time { 
+      font-weight: bold; 
+      font-size: 22px; 
+      color: #333; 
+      text-align: center; 
+      margin-top: 15px; 
+    }
   </style>
 </head>
 <body>
   <h1>🚗 EV Charging Dashboard</h1>
+
+  <!-- Dropdown to select car -->
+  <label for="carSelect">Choose Car:</label>
+  <select id="carSelect" onchange="render()">
+    <option value="0">Smurfy</option>
+    <option value="1">Rudolph</option>
+  </select>
+
   <div id="dashboard"></div>
 
   <script>
-    // Initial car data
     const cars = [
       { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39 },
       { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64 }
     ];
 
-    const dashboard = document.getElementById("dashboard");
-
     function render() {
-      dashboard.innerHTML = "";
-      cars.forEach((car, idx) => {
-        const remainingCapacity = car.capacity * (1 - car.soc/100);
-        const chargingPower = (car.voltage * car.current) / 1000; // kW
-        const hoursRemaining = chargingPower > 0 ? (remainingCapacity / chargingPower) : 0;
-        const finishTime = new Date(Date.now() + hoursRemaining*3600*1000);
+      const idx = document.getElementById("carSelect").value;
+      const car = cars[idx];
+      const remainingCapacity = car.capacity * (1 - car.soc/100);
+      const chargingPower = (car.voltage * car.current) / 1000; // kW
+      const hoursRemaining = chargingPower > 0 ? (remainingCapacity / chargingPower) : 0;
+      const finishTime = new Date(Date.now() + hoursRemaining*3600*1000);
 
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
+      const dashboard = document.getElementById("dashboard");
+      dashboard.innerHTML = `
+        <div class="card">
           <h2>${car.name}</h2>
-          <label>SOC (%): <input type="number" value="${car.soc}" 
-            onchange="updateCar(${idx}, 'soc', this.value)"></label><br>
-          <div class="progress"><div class="progress-bar" style="width:${car.soc}%"></div></div>
-          <label>Current (A): <input type="number" value="${car.current}" 
-            onchange="updateCar(${idx}, 'current', this.value)"></label><br>
+          <label>SOC (%): 
+            <input type="number" value="${car.soc}" 
+              onchange="updateCar(${idx}, 'soc', this.value)">
+          </label><br>
+          <label>Current (A): 
+            <input type="number" value="${car.current}" 
+              onchange="updateCar(${idx}, 'current', this.value)">
+          </label><br>
           <p>Voltage: ${car.voltage} V</p>
           <p>Battery Capacity: ${car.capacity} kWh</p>
           <p>Remaining Capacity: ${remainingCapacity.toFixed(2)} kWh</p>
           <p>Charging Power: ${chargingPower.toFixed(2)} kW</p>
-          <p>Estimated Finish: ${finishTime.toLocaleTimeString()}</p>
-        `;
-        dashboard.appendChild(card);
-      });
+          <p class="finish-time">Estimated Finish: ${finishTime.toLocaleTimeString()}</p>
+        </div>
+      `;
     }
 
     function updateCar(idx, field, value) {
@@ -57,6 +70,7 @@
       render();
     }
 
+    // Initial render
     render();
   </script>
 </body>
