@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EV Charging Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+    .progress { background: #eee; border-radius: 5px; overflow: hidden; }
+    .progress-bar { background: #4caf50; height: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🚗 EV Charging Dashboard</h1>
+  <div id="dashboard"></div>
+
+  <script>
+    // Example data (replace with fetch from CSV/JSON)
+    const cars = [
+      { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39 },
+      { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64 }
+    ];
+
+    const dashboard = document.getElementById("dashboard");
+
+    cars.forEach(car => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h2>${car.name}</h2>
+        <p>SOC: ${car.soc}%</p>
+        <div class="progress"><div class="progress-bar" style="width:${car.soc}%"></div></div>
+        <p>Current: ${car.current} A</p>
+        <p>Voltage: ${car.voltage} V</p>
+        <p>Battery Capacity: ${car.capacity} kWh</p>
+      `;
+      dashboard.appendChild(card);
+    });
+  </script>
+</body>
+</html>
