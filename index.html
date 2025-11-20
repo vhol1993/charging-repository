@@ -24,7 +24,7 @@
   </h1>
 
   <!-- Dropdown to select car -->
-  <label for="carSelect">Choose Car:</label>
+  <label for="carSelect">Qual Carro?:</label>
   <select id="carSelect" onchange="render()">
     <option value="0">Smurfy</option>
     <option value="1">Rudolph</option>
@@ -34,8 +34,8 @@
 
   <script>
     const cars = [
-      { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39, limit: 80 },
-      { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64, limit: 80 }
+      { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39, limit: 90 },
+      { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64, limit: 90 }
     ];
 
     function formatTime(hoursRemaining) {
@@ -65,24 +65,24 @@
       dashboard.innerHTML = `
         <div class="card">
           <h2>${car.name}</h2>
-          <label>SOC (%): 
+          <label>Estado de Carga (%): 
             <input type="number" value="${car.soc}" 
               onchange="updateCar(${idx}, 'soc', this.value)">
           </label><br>
-          <label>Current (A): 
+          <label>Corrente (A): 
             <input type="number" value="${car.current}" 
               onchange="updateCar(${idx}, 'current', this.value)">
           </label><br>
-          <label>Charge Limit (%): 
+          <label>Limite de Carga (%): 
             <input type="number" value="${car.limit}" 
               onchange="updateCar(${idx}, 'limit', this.value)">
           </label><br>
-          <p>Voltage: ${car.voltage} V</p>
-          <p>Battery Capacity: ${car.capacity} kWh</p>
-          <p>Remaining Capacity to Limit: ${remainingCapacity.toFixed(2)} kWh</p>
-          <p>Charging Power: ${chargingPower.toFixed(2)} kW</p>
-          <p>Remaining Time: ${formatTime(hoursRemaining)}</p>
-          <p class="finish-time">Estimated Finish: ${finishTime.toLocaleTimeString()}</p>
+          <p>Voltagem: ${car.voltage} V</p>
+          <p>Capacidade da Bateria: ${car.capacity} kWh</p>
+          <p>Capacidade Restante ate o Limite: ${remainingCapacity.toFixed(2)} kWh</p>
+          <p>Potencia de Carga: ${chargingPower.toFixed(2)} kW</p>
+          <p>Tempo Restante: ${formatTime(hoursRemaining)}</p>
+          <p class="finish-time">Hora Estimada de Termino: ${finishTime.toLocaleTimeString()}</p>
         </div>
       `;
     }
