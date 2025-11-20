@@ -2,15 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4caf50">
   <title>EV Charging Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; max-width: 400px; margin: auto; }
-    input { width: 120px; height: 35px; font-size: 18px; margin: 8px; padding: 5px; }
-    select { width: 200px; height: 40px; font-size: 18px; margin: 10px; }
+    input, select { width: 140px; height: 35px; font-size: 18px; margin: 8px; padding: 5px; }
     .finish-time { 
       font-weight: bold; 
       font-size: 22px; 
@@ -23,7 +20,7 @@
 <body>
   <h1>
     <img src="icon.png" alt="EV Icon" style="height:40px; vertical-align:middle; margin-right:10px;">
-  EV Charging Dashboard
+    EV Charging Dashboard
   </h1>
 
   <!-- Dropdown to select car -->
@@ -37,16 +34,31 @@
 
   <script>
     const cars = [
-      { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39 },
-      { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64 }
+      { name: "Smurfy", soc: 50, current: 15, voltage: 220, capacity: 39, limit: 80 },
+      { name: "Rudolph", soc: 50, current: 15, voltage: 220, capacity: 64, limit: 80 }
     ];
+
+    function formatTime(hoursRemaining) {
+      const totalMinutes = Math.round(hoursRemaining * 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return `${h}h ${m}m`;
+    }
 
     function render() {
       const idx = document.getElementById("carSelect").value;
       const car = cars[idx];
-      const remainingCapacity = car.capacity * (1 - car.soc/100);
+
+      // Remaining capacity until charge limit
+      const targetCapacity = car.capacity * (car.limit/100);
+      const currentCapacity = car.capacity * (car.soc/100);
+      const remainingCapacity = Math.max(targetCapacity - currentCapacity, 0);
+
+      // Charging power
       const chargingPower = (car.voltage * car.current) / 1000; // kW
       const hoursRemaining = chargingPower > 0 ? (remainingCapacity / chargingPower) : 0;
+
+      // Finish time
       const finishTime = new Date(Date.now() + hoursRemaining*3600*1000);
 
       const dashboard = document.getElementById("dashboard");
@@ -61,10 +73,15 @@
             <input type="number" value="${car.current}" 
               onchange="updateCar(${idx}, 'current', this.value)">
           </label><br>
+          <label>Charge Limit (%): 
+            <input type="number" value="${car.limit}" 
+              onchange="updateCar(${idx}, 'limit', this.value)">
+          </label><br>
           <p>Voltage: ${car.voltage} V</p>
           <p>Battery Capacity: ${car.capacity} kWh</p>
-          <p>Remaining Capacity: ${remainingCapacity.toFixed(2)} kWh</p>
+          <p>Remaining Capacity to Limit: ${remainingCapacity.toFixed(2)} kWh</p>
           <p>Charging Power: ${chargingPower.toFixed(2)} kW</p>
+          <p>Remaining Time: ${formatTime(hoursRemaining)}</p>
           <p class="finish-time">Estimated Finish: ${finishTime.toLocaleTimeString()}</p>
         </div>
       `;
@@ -77,13 +94,6 @@
 
     // Initial render
     render();
-    if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"));
-}
   </script>
 </body>
 </html>
-
-
-
